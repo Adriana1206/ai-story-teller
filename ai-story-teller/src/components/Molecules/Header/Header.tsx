@@ -1,4 +1,3 @@
-
 import Button from "@/components/Atoms/Button/Button";
 import style from "./Header.module.scss";
 
