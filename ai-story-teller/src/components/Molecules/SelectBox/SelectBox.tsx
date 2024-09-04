@@ -24,7 +24,7 @@ const SelectBox = (props: SelectBoxProps) => {
         value="" 
         onChange={handleChange}
         options={list} 
-        //className={style.select} 
+        className={style.main} 
         placeholder="seleziona" 
       />
     </div>

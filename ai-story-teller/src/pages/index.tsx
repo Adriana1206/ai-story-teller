@@ -1,5 +1,5 @@
 import Head from "next/head";
-import style from "@/styles/Home.module.css";
+import style from "@/styles/Home.module.scss";
 import Header from "@/components/Molecules/Header/Header";
 import WindowBox from "@/components/Organism/WindowBox/WindowBox";
 import InputBox from "@/components/Molecules/InputBox/InputBox";
@@ -7,14 +7,54 @@ import SelectBox from "@/components/Molecules/SelectBox/SelectBox";
 import { useState } from "react";
 import { listaGeneri } from "@/constants/common";
 import Button from "@/components/Atoms/Button/Button";
+import { GenerateContentCandidate, GoogleGenerativeAI } from "@google/generative-ai";
+import SwitchBox from "@/components/Molecules/SwitchBox/SwitchBox";
 
 export default function Home() {
   const [protagonista, setProtagonista] = useState("");
   const [antagonista, setAntagonista] = useState("");
   const [genere, setGenere] = useState("");
+  const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pegi18, setPegi18] = useState(false);
 
-  const handleGenerate = () => {
-    console.log({ protagonista, antagonista, genere });
+  const handleGenerate = async () => {
+    setLoading(true);
+
+    const prompt = `Genera un racconto ${genere} per ${pegi18 ? "adulti" : "bambini"}, con il protagonista chiamato ${protagonista} e l'antagonista chiamato ${antagonista}`;
+
+    if (process.env.NEXT_PUBLIC_GEMINI_KEY) {
+      //controllo che tutti i campi siano compilati per generare il racconto
+      /*if (
+        protagonista.trim().length < 0 &&
+        antagonista.trim().length < 0 &&
+        genere.trim().length < 0
+      ) 
+      Non potrà mai essere vero perché .length non può mai essere inferiore a 0.
+      */
+      if (
+        protagonista.trim().length > 0 &&
+        antagonista.trim().length > 0 &&
+        genere.trim().length > 0
+      ) {
+        const genAI = new GoogleGenerativeAI(
+          process.env.NEXT_PUBLIC_GEMINI_KEY
+        );
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const result = await model.generateContent(prompt);
+
+        const output = (
+          result.response.candidates as GenerateContentCandidate[]
+        )[0].content.parts[0].text;
+
+        if (output) {
+          setResponse(output);
+        }
+      }
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -40,26 +80,41 @@ export default function Home() {
                 value={antagonista}
                 setValue={setAntagonista}
               />
-            </div>
-            <div className={style.container}>
               <SelectBox
                 label="Genere:"
                 list={listaGeneri}
                 setAction={setGenere}
               />
+              <SwitchBox
+                label="Per Adulti:"
+                value={pegi18}
+                setValue={setPegi18}
+              />
+              <Button
+                label="Genera"
+                onClick={handleGenerate}
+                //Mantengo il pulsante di generazione disabilitato fino a quando i campi non sono compilati 
+                disabled={
+                  protagonista.trim().length <= 0 ||
+                  antagonista.trim().length <= 0 ||
+                  genere.trim().length <= 0 ||
+                  loading
+                }
+              />
             </div>
-            <Button
-              label="Genera"
-              onClick={handleGenerate}
-              disabled={
-                protagonista.trim().length <= 0 ||
-                antagonista.trim().length <= 0 ||
-                genere.trim().length <= 0
-              }
-            />
+
+            {loading ? (
+              <div className={style.loading}>
+                <p>loading...</p>
+              </div>
+            ) : (
+              <div className={style.result}>{response}</div>
+            )}
           </WindowBox>
         </div>
       </main>
     </>
   );
 }
+
+

@@ -24,3 +24,15 @@ export const listaGeneri = [
       value: "giallo",
     },
   ];
+
+
+  const navBar = [
+    {
+      label: "Home",
+      link: "/",
+    },
+    {
+      label: "Contattaci",
+      link: "/contatti",
+    }
+  ]

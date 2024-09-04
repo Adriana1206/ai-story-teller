@@ -6,15 +6,16 @@ interface selectProps{
     onChange: (e: ChangeEvent<HTMLSelectElement>) => void;
     options: {  label: string, value: string | number; }[]; 
     placeholder?: string; 
+    className?: string;
 
 }
 
 
 const Select = (props: selectProps) => {
 
-    const{ id, value, onChange, options, placeholder }  = props;
+    const{ id, value, onChange, options, placeholder, className }  = props;
   return (
-    <select id={id} value={value} onChange={onChange}>
+    <select className={className} id={id} value={value} onChange={onChange}>
       {placeholder && (
         <option value="" hidden>
           {placeholder}
