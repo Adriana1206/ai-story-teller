@@ -1,7 +1,12 @@
-.main {
+.main{
     @include window-style();
-
+    
     h2 {
         margin-bottom: rem(10px);
+        color: white;
+        font-family: "Dancing Script";
+        font-optical-sizing: auto;
+        font-size:xx-large;
+        font-weight: 800;
     }
 }

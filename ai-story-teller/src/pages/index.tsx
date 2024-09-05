@@ -7,24 +7,28 @@ import SelectBox from "@/components/Molecules/SelectBox/SelectBox";
 import { useState } from "react";
 import { listaGeneri } from "@/constants/common";
 import Button from "@/components/Atoms/Button/Button";
-import { GenerateContentCandidate, GoogleGenerativeAI } from "@google/generative-ai";
+//import {GenerateContentCandidate,GoogleGenerativeAI,} from "@google/generative-ai";
 import SwitchBox from "@/components/Molecules/SwitchBox/SwitchBox";
+import Toast from "@/components/Atoms/Toast/Toast";
+
 
 export default function Home() {
   const [protagonista, setProtagonista] = useState("");
   const [antagonista, setAntagonista] = useState("");
   const [genere, setGenere] = useState("");
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
   const [pegi18, setPegi18] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [response, setResponse] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handleGenerate = async () => {
     setLoading(true);
+    setError(false);
+    const prompt = `genera un racconto ${genere} per ${pegi18 ? "adulti" : "bambini"}, con il protagonista chiamato ${protagonista} e l'antagonista chiamato ${antagonista}.`;
 
-    const prompt = `Genera un racconto ${genere} per ${pegi18 ? "adulti" : "bambini"}, con il protagonista chiamato ${protagonista} e l'antagonista chiamato ${antagonista}`;
-
-    if (process.env.NEXT_PUBLIC_GEMINI_KEY) {
-      //controllo che tutti i campi siano compilati per generare il racconto
+    //controllo che tutti i campi siano compilati per generare il racconto
       /*if (
         protagonista.trim().length < 0 &&
         antagonista.trim().length < 0 &&
@@ -32,31 +36,47 @@ export default function Home() {
       ) 
       Non potrà mai essere vero perché .length non può mai essere inferiore a 0.
       */
-      if (
-        protagonista.trim().length > 0 &&
-        antagonista.trim().length > 0 &&
-        genere.trim().length > 0
-      ) {
-        const genAI = new GoogleGenerativeAI(
-          process.env.NEXT_PUBLIC_GEMINI_KEY
-        );
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-        const result = await model.generateContent(prompt);
-
-        const output = (
-          result.response.candidates as GenerateContentCandidate[]
-        )[0].content.parts[0].text;
-
-        if (output) {
-          setResponse(output);
+    if (
+      protagonista.trim().length > 0 &&
+      antagonista.trim().length > 0 &&
+      genere.trim().length > 0
+    ) {
+      try {
+        const response = await fetch("/api/generate", {
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify({ prompt }),
+        });
+        const data = await response.json();
+        if (!data.ok) {
+          throw new Error("errore");
         }
+        setResponse(data.message);
+      } catch (e) {
+        console.error("il nostro errore:", e);
+        setError(true);
       }
     }
-
     setLoading(false);
   };
 
+  const handleVoice = () => {
+    const utterance = new SpeechSynthesisUtterance(response);
+    utterance.lang = "it-IT";
+    setIsPlaying(true);
+    speechSynthesis.speak(utterance);
+
+    utterance.pitch = 1;
+
+    utterance.onend = () => {
+      setIsPlaying(false);
+    };
+  };
+
+  const handleStopVoice = () => {
+    speechSynthesis.cancel();
+    setIsPlaying(false);
+  };
   return (
     <>
       <Head>
@@ -68,6 +88,14 @@ export default function Home() {
       <main className={style.main}>
         <Header title="AI Story Teller" />
         <div className={style.content}>
+          {error && (
+            <Toast
+              setAction={setError}
+              title="Errore"
+              message="Errore nella creazione del racconto"
+            />
+          )}
+
           <WindowBox title="Story Params">
             <div className={style.container}>
               <InputBox
@@ -86,14 +114,12 @@ export default function Home() {
                 setAction={setGenere}
               />
               <SwitchBox
-                label="Per Adulti:"
                 value={pegi18}
                 setValue={setPegi18}
               />
               <Button
                 label="Genera"
                 onClick={handleGenerate}
-                //Mantengo il pulsante di generazione disabilitato fino a quando i campi non sono compilati 
                 disabled={
                   protagonista.trim().length <= 0 ||
                   antagonista.trim().length <= 0 ||
@@ -102,13 +128,22 @@ export default function Home() {
                 }
               />
             </div>
-
-            {loading ? (
+            {loading && (
               <div className={style.loading}>
                 <p>loading...</p>
               </div>
-            ) : (
-              <div className={style.result}>{response}</div>
+            )}
+            {!loading && response && (
+              <div className={style.result}>
+                <div className={style.btn}>
+                  {isPlaying ? (
+                    <Button label="Stop" onClick={handleStopVoice} />
+                  ) : (
+                    <Button label="Racconta" onClick={handleVoice} />
+                  )}
+                </div>
+                {response}
+              </div>
             )}
           </WindowBox>
         </div>
@@ -116,5 +151,3 @@ export default function Home() {
     </>
   );
 }
-
-

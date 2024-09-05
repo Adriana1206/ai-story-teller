@@ -1,25 +1,29 @@
-import { Dispatch, SetStateAction, useState } from "react";
-import style from "./Switch.module.scss"
+import { Dispatch, SetStateAction } from "react";
+import style from "./Switch.module.scss";
 
-
-interface SwitchProps{
-    active: boolean;
-    setActive: Dispatch<SetStateAction<boolean>>;
+interface SwitchProps {
+  active: boolean;
+  setActive: Dispatch<SetStateAction<boolean>>;
 }
 
-const Switch = (props:SwitchProps) => {
+const Switch = (props: SwitchProps) => {
+  const { active, setActive } = props;
 
-    const {active, setActive} = props;
+  return (
+    <div className={style.switchContainer}>
+      <span className={style.label}>Adulti</span>
+      <label className={style.switch}>
+        <input
+          type="checkbox"
+          checked={active}
+          onChange={() => setActive(!active)}
+        />
+        <span className={`${style.slider} ${style.round}`}></span>
+      </label>
+      <span className={style.label}>Bambini</span>
+    </div>
+  );
+};
 
-    return(
-        <div
-            className={`${style.main} ${active ? style.active : ""}`}
-            onClick={() => setActive(!active)}
-        >
-            <div className={`${style.mask}  ${active ? style.active : ""}`} />
-            <div className={`${style.dot} ${active ? style.active : ""}`} />
-        </div>
-    )
-}
+export default Switch;
 
-export default Switch
