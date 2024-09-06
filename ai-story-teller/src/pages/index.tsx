@@ -23,19 +23,14 @@ export default function Home() {
   const [response, setResponse] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const [question, setQuestion] = useState("");
+  const [questionResponse, setQuestionResponse] = useState("");
+
   const handleGenerate = async () => {
     setLoading(true);
     setError(false);
     const prompt = `genera un racconto ${genere} per ${pegi18 ? "adulti" : "bambini"}, con il protagonista chiamato ${protagonista} e l'antagonista chiamato ${antagonista}.`;
 
-    //controllo che tutti i campi siano compilati per generare il racconto
-      /*if (
-        protagonista.trim().length < 0 &&
-        antagonista.trim().length < 0 &&
-        genere.trim().length < 0
-      ) 
-      Non potrà mai essere vero perché .length non può mai essere inferiore a 0.
-      */
     if (
       protagonista.trim().length > 0 &&
       antagonista.trim().length > 0 &&
@@ -77,6 +72,27 @@ export default function Home() {
     speechSynthesis.cancel();
     setIsPlaying(false);
   };
+
+  const handleAskQuestion = async () => {
+    if (question.trim().length > 0) {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/ask-question", {
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
+          body: JSON.stringify({ question, story: response }), 
+        });
+        const data = await response.json();
+        setQuestionResponse(data.answer);
+      } catch (e) {
+        console.error("Errore nella risposta alla domanda:", e);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   return (
     <>
       <Head>
@@ -113,10 +129,7 @@ export default function Home() {
                 list={listaGeneri}
                 setAction={setGenere}
               />
-              <SwitchBox
-                value={pegi18}
-                setValue={setPegi18}
-              />
+              <SwitchBox value={pegi18} setValue={setPegi18} />
               <Button
                 label="Genera"
                 onClick={handleGenerate}
@@ -146,6 +159,27 @@ export default function Home() {
               </div>
             )}
           </WindowBox>
+
+          {/* Sezione domande */}
+          {!loading && response && (
+            <div className={style.questionSection}>
+              <InputBox
+                label="Fai una domanda sul racconto:"
+                value={question}
+                setValue={setQuestion}
+              />
+              <Button
+                label="Chiedi"
+                onClick={handleAskQuestion}
+                disabled={question.trim().length <= 0 || loading}
+              />
+              {questionResponse && (
+                <div className={style.answer}>
+                  <p>{questionResponse}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </>

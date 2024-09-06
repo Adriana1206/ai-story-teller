@@ -5,6 +5,7 @@ interface InputProps{
     setValue: Dispatch<SetStateAction<string>>;
     type: string;
     placeholder?: string;
+    className?: string;
 }
 
 const Input = (props: InputProps) => {

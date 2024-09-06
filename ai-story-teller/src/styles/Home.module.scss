@@ -1,23 +1,26 @@
 .main {
+  position: relative;
   min-height: 100vh;
   background-image: url('/AI.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 
+  //Story Params
   .content {
     padding: 50px 0;
 
     .container {
       display: flex;
       flex-wrap: wrap; 
-      flex-direction: row;
+      flex-direction: column;
       justify-content: space-between; 
       gap: 20px;
       align-items: center;
       text-align: center;
     }
 
+    //racconto generato
     .result {
       @include window-style(100%);
       margin-top: rem(20px);
@@ -31,9 +34,36 @@
       font-style: normal;
       font-size: larger;
 
-      max-height: 250px; 
+      max-height: 350px; 
       overflow-y: auto; 
       padding: 10px; 
+    }
+
+    //sezione domande
+    .questionSection {
+      position: relative; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 5px;
+      bottom: 20px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      width: calc(100% - 40px); 
+      max-width: 600px; 
+      background-color: rgba(32, 33, 36, 0.8); 
+      padding: 5px; 
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+      // z-index: 10; 
+      border-radius: 10px;
+      color: white;
+      margin-top: 30px;
+    }
+
+    .answer {
+      margin-top: 10px;
+      color: #ccc;
     }
   }
 }
