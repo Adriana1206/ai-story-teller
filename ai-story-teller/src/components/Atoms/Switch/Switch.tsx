@@ -11,7 +11,6 @@ const Switch = (props: SwitchProps) => {
 
   return (
     <div className={style.switchContainer}>
-      <span className={style.label}>Bambini</span>
       <label className={style.switch}>
         <input
           type="checkbox"
@@ -20,7 +19,6 @@ const Switch = (props: SwitchProps) => {
         />
         <span className={`${style.slider} ${style.round}`}></span>
       </label>
-      <span className={style.label}>Adulti</span>
     </div>
   );
 };

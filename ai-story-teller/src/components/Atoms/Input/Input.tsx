@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction } from 'react'
 
+
 interface InputProps{
     value: string;
     setValue: Dispatch<SetStateAction<string>>;
@@ -12,7 +13,7 @@ const Input = (props: InputProps) => {
     const{value, setValue, type, placeholder} = props;
 
     return (
-      <input
+      <input 
         value={value}
         onChange={(e) => setValue(e.target.value)}
         type={type}

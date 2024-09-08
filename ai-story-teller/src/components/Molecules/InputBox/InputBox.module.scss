@@ -6,13 +6,17 @@
         font-optical-sizing: auto;
         font-weight: weight;
         font-style: normal;
+        font-size: 25px;
     }
 
     input {
         padding: rem(5px) rem(10px);
         border: rem(1px) solid var(--color-20);
         border-radius: rem(10px);
-        width: 100%; 
-        
+
+        width: 100%;
+        max-width: 500px;
+        min-width: 300px;
+
     }
 }

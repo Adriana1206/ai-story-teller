@@ -58,16 +58,30 @@ export default function Home() {
   };
 
   const handleVoice = () => {
-    const utterance = new SpeechSynthesisUtterance(response);
-    utterance.lang = "it-IT";
-    setIsPlaying(true);
-    speechSynthesis.speak(utterance);
+    // Divido il testo in frasi usando il punto come separatore
+    const sentences = response.split('.');
+    let index = 0;
 
-    utterance.pitch = 0.8;
-  
-    utterance.onend = () => {
-      setIsPlaying(false);
+    const speakNextSentence = () => {
+      if (index < sentences.length) {
+        const utterance = new SpeechSynthesisUtterance(sentences[index].trim());
+        utterance.lang = "it-IT";
+        utterance.pitch = 0.8;
+
+        utterance.onend = () => {
+          index++;
+          // Passo alla frase successiva
+          speakNextSentence();
+        };
+
+        speechSynthesis.speak(utterance);
+      } else {
+        setIsPlaying(false); // Lettura di tutte le frasi completata
+      }
     };
+
+    setIsPlaying(true);
+    speakNextSentence();
   };
 
   const handleStopVoice = () => {
@@ -82,7 +96,7 @@ export default function Home() {
         const responseAI = await fetch("/api/ask-question", {
           headers: { "Content-Type": "application/json" },
           method: "POST",
-          body: JSON.stringify({ question, story: response }), 
+          body: JSON.stringify({ question, story: response }),
         });
         const data = await responseAI.json();
         if (data.ok) {
@@ -118,7 +132,7 @@ export default function Home() {
             />
           )}
 
-          <WindowBox title="Story Params">
+          <WindowBox title="Crea la Tua Storia">
             <div className={style.container}>
               <InputBox
                 label="Nome Protagonista:"
@@ -130,7 +144,7 @@ export default function Home() {
                 value={antagonista}
                 setValue={setAntagonista}
               />
-               <InputBox
+              <InputBox
                 label="Luogo:"
                 value={luogo}
                 setValue={setLuogo}
@@ -140,7 +154,7 @@ export default function Home() {
                 list={listaGeneri}
                 setAction={setGenere}
               />
-              <SwitchBox value={pegi18} setValue={setPegi18} />
+              <SwitchBox value={pegi18} label="Per adulti:" setValue={setPegi18} />
               <Button
                 label="Genera"
                 onClick={handleGenerate}
@@ -155,7 +169,7 @@ export default function Home() {
             </div>
             {loading && (
               <div className={style.loading}>
-                <img src="/W1.gif" alt="Loading..." /> 
+                <img src="/W1.gif" alt="Loading..." />
               </div>
             )}
             {!loading && response && (
@@ -176,7 +190,7 @@ export default function Home() {
           {!loading && response && (
             <div className={style.questionSection}>
               <InputBox
-                label="Fai una domanda sul racconto:"
+                label="Fai una domanda:"
                 value={question}
                 setValue={setQuestion}
               />
