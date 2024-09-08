@@ -1,7 +1,7 @@
 @mixin window-style($width: 100%) {
     width: $width;
-    max-width: 800px;
-    margin: auto;
+    max-width: 600px;
+    margin: 50px auto;
     padding: 20px;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     border-radius: 10px;

@@ -16,6 +16,7 @@ export default function Home() {
   const [protagonista, setProtagonista] = useState("");
   const [antagonista, setAntagonista] = useState("");
   const [genere, setGenere] = useState("");
+  const [luogo, setLuogo] = useState("");
   const [pegi18, setPegi18] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -29,12 +30,13 @@ export default function Home() {
   const handleGenerate = async () => {
     setLoading(true);
     setError(false);
-    const prompt = `genera un racconto ${genere} per ${pegi18 ? "adulti" : "bambini"}, con il protagonista chiamato ${protagonista} e l'antagonista chiamato ${antagonista}.`;
+    const prompt = `genera un racconto ${genere} per ${pegi18 ? "adulti" : "bambini"}, con il protagonista chiamato ${protagonista}, l'antagonista chiamato ${antagonista}, e ambientato in ${luogo}.`;
 
     if (
       protagonista.trim().length > 0 &&
       antagonista.trim().length > 0 &&
-      genere.trim().length > 0
+      genere.trim().length > 0 &&
+      luogo.trim().length > 0
     ) {
       try {
         const response = await fetch("/api/generate", {
@@ -61,8 +63,8 @@ export default function Home() {
     setIsPlaying(true);
     speechSynthesis.speak(utterance);
 
-    utterance.pitch = 1;
-
+    utterance.pitch = 0.8;
+  
     utterance.onend = () => {
       setIsPlaying(false);
     };
@@ -77,13 +79,17 @@ export default function Home() {
     if (question.trim().length > 0) {
       try {
         setLoading(true);
-        const response = await fetch("/api/ask-question", {
+        const responseAI = await fetch("/api/ask-question", {
           headers: { "Content-Type": "application/json" },
           method: "POST",
           body: JSON.stringify({ question, story: response }), 
         });
-        const data = await response.json();
-        setQuestionResponse(data.answer);
+        const data = await responseAI.json();
+        if (data.ok) {
+          setQuestionResponse(data.answer);
+        } else {
+          throw new Error(data.message || "Errore nella risposta alla domanda");
+        }
       } catch (e) {
         console.error("Errore nella risposta alla domanda:", e);
         setError(true);
@@ -124,6 +130,11 @@ export default function Home() {
                 value={antagonista}
                 setValue={setAntagonista}
               />
+               <InputBox
+                label="Luogo:"
+                value={luogo}
+                setValue={setLuogo}
+              />
               <SelectBox
                 label="Genere:"
                 list={listaGeneri}
@@ -137,13 +148,14 @@ export default function Home() {
                   protagonista.trim().length <= 0 ||
                   antagonista.trim().length <= 0 ||
                   genere.trim().length <= 0 ||
+                  luogo.trim().length <= 0 ||
                   loading
                 }
               />
             </div>
             {loading && (
               <div className={style.loading}>
-                <p>loading...</p>
+                <img src="/W1.gif" alt="Loading..." /> 
               </div>
             )}
             {!loading && response && (

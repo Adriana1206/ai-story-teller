@@ -6,8 +6,8 @@
 .label {
   color: white;
   font-family: "Dancing Script", cursive;
-  font-weight: normal; // Puoi cambiare il peso del font se necessario
-  margin: 0 10px; // Distanza tra l'etichetta e lo switch
+  font-weight: normal; 
+  margin: 0 10px; 
 }
 
 .switch {
@@ -45,7 +45,7 @@
   }
 
   input:checked + .slider {
-    background-color: #2196f3;
+    background-color: rgba(21, 94, 117, 1);
   }
 
   input:focus + .slider {

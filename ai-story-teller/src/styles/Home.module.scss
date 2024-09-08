@@ -2,9 +2,10 @@
   position: relative;
   min-height: 100vh;
   background-image: url('/AI.png');
-  background-size: cover;
-  background-position: center;
+  background-size:cover;
+  background-position:center;
   background-repeat: no-repeat;
+  overflow-y: auto; 
 
   //Story Params
   .content {
@@ -13,9 +14,8 @@
     .container {
       display: flex;
       flex-wrap: wrap; 
-      flex-direction: column;
-      justify-content: space-between; 
-      gap: 20px;
+      flex-direction: row;
+      gap: 10px;
       align-items: center;
       text-align: center;
     }
@@ -51,7 +51,7 @@
       left: 50%; 
       transform: translateX(-50%); 
       width: calc(100% - 40px); 
-      max-width: 600px; 
+      max-width: 400px; 
       background-color: rgba(32, 33, 36, 0.8); 
       padding: 5px; 
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
@@ -66,4 +66,20 @@
       color: #ccc;
     }
   }
+
+
+  .loading {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    height: 40%; 
+    margin-top: 10px; 
+  
+    img {
+      width: 200px; 
+      height: auto;
+    }
+  }
 }
+
+
